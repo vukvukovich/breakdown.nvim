@@ -7,6 +7,7 @@ Turn debugging into a spectator sport. One command and your code yeets itself ac
 - **Realistic physics simulation** - Characters fall with gravity, mass variation, and collision detection
 - **Syntax highlighting preservation** - Colors stay intact during the breakdown
 - **Restore on keypress** - Press any key to restore your buffer
+- **Desk slam detection** - Triggers on table impact via accelerometer (Intel Macs only)
 - **Highly configurable** - Customize gravity, speed, and physics parameters
 - **Performance optimized** - Smooth 60 FPS animation
 
@@ -65,36 +66,55 @@ require("breakdown").breakdown()
 
 After the animation completes, **press any key** to restore your buffer.
 
+### Keyboard Mapping (Recommended)
+
+Map to your favorite rage-quit key:
+
+```lua
+vim.keymap.set("n", "<leader>br", "<cmd>Breakdown<cr>", { desc = "Breakdown animation" })
+```
+
+### Accelerometer Mode (Not Yet Working)
+
+**Research Status:** We discovered that Apple Silicon Macs (M1/M2/M3) DO have accelerometer hardware accessible via IOKit:
+- Device: "Apple Internal Keyboard / Trackpad"
+- HID UsagePage: 0xFF00 (vendor-defined)
+- HID Usage: 0x03
+- Can be opened with IOHIDDeviceOpen
+
+**Current Limitation:** While the device can be found and opened, it doesn't send data without special entitlements that command-line tools can't obtain. Possible solutions for future:
+- Signed app bundle with proper entitlements
+- Private framework access (non-portable)
+- Different sensor access method
+
+**For Now:** Use keyboard mapping instead:
+
+```lua
+vim.keymap.set("n", "<leader>br", "<cmd>Breakdown<cr>", { desc = "Breakdown" })
+```
+
+The Swift accelerometer reader code is in `bin/accel_reader.swift` for reference. Contributions welcome if you find a way to get data from the sensor!
+
 ## Configuration
 
 ### Default Configuration
 
 ```lua
 require("breakdown").setup({
-  -- Animation frame rate (frames per second)
   fps = 60,
-
-  -- Gravity strength - higher = faster fall
   gravity = 50.0,
-
-  -- Particle mass range - affects fall speed variation
   mass_min = 0.7,
   mass_max = 1.7,
-
-  -- Horizontal velocity range for drift effect
   drift_max = 1.5,
-
-  -- Initial vertical velocity range
   initial_velocity_max = 2.0,
-
-  -- Air resistance coefficient (0-1, where 1 = no resistance)
   air_resistance = 0.98,
-
-  -- Collision padding when particles stack (rows)
   collision_padding = 0.3,
-
-  -- Collision detection distance (horizontal)
   collision_distance = 1.5,
+
+  -- Accelerometer (macOS only)
+  enable_accelerometer = false,
+  impact_threshold = 100,
+  poll_interval = 50,
 })
 ```
 
@@ -118,6 +138,12 @@ require("breakdown").setup({
   mass_max = 2.5,
   drift_max = 0.5,
 })
+```
+
+**Keyboard trigger (Recommended):**
+```lua
+-- Map to your preferred key
+vim.keymap.set("n", "<C-q>", "<cmd>Breakdown<cr>")
 ```
 
 ## How It Works

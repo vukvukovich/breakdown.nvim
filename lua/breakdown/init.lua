@@ -1,10 +1,18 @@
 local config = require("breakdown.config")
 local animation = require("breakdown.animation")
+local accelerometer = require("breakdown.accelerometer")
 
 local M = {}
 
 function M.setup(user_config)
   config.setup(user_config)
+
+  local cfg = config.get()
+  if cfg.enable_accelerometer then
+    accelerometer.start(function()
+      M.breakdown()
+    end)
+  end
 end
 
 function M.breakdown()
@@ -18,6 +26,10 @@ end
 
 function M.is_running()
   return animation.is_running()
+end
+
+function M.stop_accelerometer()
+  accelerometer.stop()
 end
 
 return M

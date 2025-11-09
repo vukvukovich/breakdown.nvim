@@ -10,6 +10,11 @@ M.defaults = {
   air_resistance = 0.98,
   collision_padding = 0.3,
   collision_distance = 1.5,
+
+  -- Accelerometer settings (macOS only)
+  enable_accelerometer = false,
+  impact_threshold = 100,
+  poll_interval = 50,
 }
 
 M.options = vim.deepcopy(M.defaults)
